@@ -81,19 +81,25 @@
       vertical-align: top;
     }
 
+    div[hidden="true"] {
+      display: none;
+    }
+
   </style>
     
     <div>
       <span class="name">
         <span>
-          <template is="dom-if" if="{{_show(obj.description)}}">
-            <comment-description>{{obj.description}}
-              <template is="dom-if" if="{{_show(obj.example)}}">
-                <br/>
-                &nbsp; * example: {{obj.example}} 
-              </template>
-            </comment-description>
-          </template>
+          <div hidden$="{{!env.showComments}}">
+            <template is="dom-if" if="{{_show(obj.description)}}">
+              <comment-description>{{obj.description}}
+                <template is="dom-if" if="{{_show(obj.example)}}">
+                  <br/>
+                  &nbsp; * example: {{obj.example}} 
+                </template>
+              </comment-description>
+            </template>
+          </div>
           <bold>{{name}}</bold>:<object-type obj="{{obj}}"></object-type>
         </span>
         <template is="dom-if" if="{{required}}">
@@ -110,14 +116,62 @@
     properties: {
       obj: {type: Object},
       name: {type:String},
-      required: {type: Boolean}
+      required: {type: Boolean},
+      env: {type: Object}
     },
     _show: function(o){
-      return o !== undefined;
+      return  o !== undefined;
     }
   })
 </script>
 
+<link rel="import" href="../paper-checkbox/paper-checkbox.html"/>
+<dom-module is="schema-controls">
+  <template>
+    <paper-checkbox checked="{{env.showComments}}">Show Comments</paper-checkbox>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'schema-controls',
+    properties: {
+      env: {type:Object, notify: true}
+    },
+    _stringify: function(o){
+      return JSON.stringify(o);
+    }
+  });
+</script>
+
+<dom-module is="json-schema-root">
+  <style>
+    :host{
+      @apply(--paper-font-common-base);
+    }
+    hr {
+      border: solid 0px black;
+      border-bottom: solid 1px var(--paper-grey-300);
+    }
+  </style>
+  <template>
+    <h1>{{schema.title}}</h1>
+    <h4>{{schema.id}}</h4>
+    <p>{{item.description}}</p>
+    <hr/>
+    <schema-controls env="{{env}}"></schema-controls>
+    <hr/>
+    <json-schema schema="{{schema}}" env="{{env}}"></json-schema>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'json-schema-root',
+    properties: {
+      schema: {type: Object},
+      env: {type: Object, value: {showComments: true}, notify: true}
+    }
+  });
+</script>
 <dom-module is="json-schema">
   <style>
 
@@ -134,9 +188,10 @@
           <property-name
             name="{{item.name}}"
             obj="{{item.value}}"
-            required="{{item.required}}">
+            required="{{item.required}}"
+            env="{{env}}">
               <template is="dom-if" if="{{_is('object', item.value.type)}}">
-                  <json-schema schema="{{item.value}}"></json-schema>
+                  <json-schema env="{{env}}" schema="{{item.value}}"></json-schema>
               </template>
               <template is="dom-if" if="{{_is('string', item.value.type)}}">
                 <json-schema-string 
@@ -159,6 +214,9 @@
     is: 'json-schema',
     properties: {
       schema: {
+        type: Object
+      },
+      env: {
         type: Object
       }
     },

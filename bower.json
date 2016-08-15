@@ -4,7 +4,8 @@
   "dependencies": {
     "polymer": "^1.6.1",
     "lodash": "^4.15.0",
-    "paper-styles": "PolymerElements/paper-styles#^1.1.4"
+    "paper-styles": "PolymerElements/paper-styles#^1.1.4",
+    "paper-checkbox": "PolymerElements/paper-checkbox#^1.4.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
