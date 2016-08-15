@@ -2,6 +2,7 @@
 <link rel="import" href="../paper-styles/typography.html"/>
 <link rel="import" href="../paper-styles/color.html"/>
 <link rel="import" href="../font-roboto/roboto.html">
+<link rel="import" href="../iron-icons/iron-icons.html"/>
 <!--
   JSON Schema...
 
@@ -11,6 +12,8 @@
 <dom-module is="comment-description">
   <style>
     :host{
+      position: relative;
+      left: 20px;
       color: var(--paper-green-500);
     }
   </style>
@@ -85,10 +88,37 @@
       display: none;
     }
 
+    iron-icon{
+      cursor: pointer;
+      -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none;   /* Chrome/Safari/Opera */
+      -khtml-user-select: none;    /* Konqueror */
+      -moz-user-select: none;      /* Firefox */
+      -ms-user-select: none;       /* Internet Explorer/Edge */
+      user-select: none;           /* Non-prefixed version, currently
+                                      not supported by any browser */
+    }
     iron-icon[transparent]{
       opacity: 0;
     }
 
+    :host[_expand] .content{
+      display: block;
+    }
+    :host .content{
+      display: none;
+    }
+
+    :host iron-icon{
+      width: 14px;
+      height: 14px;
+      transform: scale(1.0);
+    }
+    :host[_expand] iron-icon{
+      width: 14px;
+      height: 14px;
+      transform: scale(1.0) rotate(90deg);
+    }
   </style>
     
     <div>
@@ -105,14 +135,18 @@
             </template>
           </div>
           
-          <iron-icon on-click="_onToggle" transparent$="{{!_is(obj.type,'object')}}" icon="hardware:keyboard-arrow-down"></iron-icon>
+          <iron-icon 
+            on-click="_onToggle" 
+            transparent$="{{!_showExpandIcon(obj.type)}}" 
+            expanded?="{{_expand}}"
+            icon="icons:chevron-right"></iron-icon>
           <bold>{{name}}</bold>:<object-type obj="{{obj}}"></object-type>
         </span>
         <template is="dom-if" if="{{required}}">
           <span class="required">*</span>
         </template>
       </span>
-      <div class="content" hidden$="{{!obj._expand}}"><content></content></div>
+      <div class="content" hidden?="{{_expand}}"><content></content></div>
     </div>
   </template>
 </dom-module>
@@ -123,19 +157,23 @@
       obj: {type: Object},
       name: {type:String},
       required: {type: Boolean},
-      env: {type: Object}
+      env: {type: Object},
+      _expand: {
+        type: Boolean, 
+        value: true, 
+        reflectToAttribute: true},
     },
     _show: function(o){
       return  o !== undefined;
     },
-    _is: function(actual, expected){
-      return actual === expected;
+    _showExpandIcon: function(t){
+      return t === 'object' || 
+        (t === 'number' && this.obj.minimum !== undefined) ||
+        (t === 'array' && this.obj.items.type === 'object');
     },
     _onToggle: function(){
-      this.async(function(){
-        this.obj._expand = !this.obj._expand;
-      });
-      console.log(this.obj._expand);
+      this._expand = !this._expand;
+      console.log(this._expand);
     }
   })
 </script>
@@ -188,15 +226,10 @@
   });
 </script>
 
-<link rel="import" href="../iron-icons/hardware-icons.html"/>
 <dom-module is="json-schema">
   <style>
-
     :host{
       @apply(--paper-font-body1);
-    }
-    :host > table > tr > td{
-      vertical-align: top;
     }
   </style>
 
@@ -254,12 +287,15 @@
   });
 </script>
 <dom-module is="json-schema-number">
+  <style>
+    .min {
+      padding: 0px;
+      padding-left: 15px;
+    }
+  </style>
   <template>
     <template is="dom-if" if="{{_show(schema.minimum)}}">
-      <div>minimum: {{schema.minimum}}</div>
-    </template>
-    <template is="dom-if" if="{{_show(schema.example)}}">
-      <div>example: {{schema.example}}</div>
+      <span class="min">minimum: {{schema.minimum}}</span>
     </template>
   </template>
 </dom-module>
