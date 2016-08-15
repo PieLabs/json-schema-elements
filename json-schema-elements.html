@@ -85,6 +85,10 @@
       display: none;
     }
 
+    iron-icon[transparent]{
+      opacity: 0;
+    }
+
   </style>
     
     <div>
@@ -100,13 +104,15 @@
               </comment-description>
             </template>
           </div>
+          
+          <iron-icon on-click="_onToggle" transparent$="{{!_is(obj.type,'object')}}" icon="hardware:keyboard-arrow-down"></iron-icon>
           <bold>{{name}}</bold>:<object-type obj="{{obj}}"></object-type>
         </span>
         <template is="dom-if" if="{{required}}">
           <span class="required">*</span>
         </template>
       </span>
-      <div class="content"><content></content></div>
+      <div class="content" hidden$="{{!obj._expand}}"><content></content></div>
     </div>
   </template>
 </dom-module>
@@ -121,6 +127,15 @@
     },
     _show: function(o){
       return  o !== undefined;
+    },
+    _is: function(actual, expected){
+      return actual === expected;
+    },
+    _onToggle: function(){
+      this.async(function(){
+        this.obj._expand = !this.obj._expand;
+      });
+      console.log(this.obj._expand);
     }
   })
 </script>
@@ -172,6 +187,8 @@
     }
   });
 </script>
+
+<link rel="import" href="../iron-icons/hardware-icons.html"/>
 <dom-module is="json-schema">
   <style>
 
