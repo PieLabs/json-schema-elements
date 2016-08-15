@@ -1,0 +1,272 @@
+<link rel="import" href="../polymer/polymer.html"/>
+<link rel="import" href="../paper-styles/typography.html"/>
+<link rel="import" href="../paper-styles/color.html"/>
+<link rel="import" href="../font-roboto/roboto.html">
+<!--
+  JSON Schema...
+
+  @demo demo/index.html
+-->
+
+<dom-module is="comment-description">
+  <style>
+    :host{
+      color: var(--paper-green-500);
+    }
+  </style>
+  <template><div>/**<br/>&nbsp; * <content></content> <br/>&nbsp; */</div></template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'comment-description'
+  })
+</script>
+
+<dom-module is="object-type">
+  <style>
+    :host{
+      color: var(--paper-indigo-300);
+    }
+  </style>
+  <template>{{_objectType}}</template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'object-type',
+    properties: {
+      obj: {type: Object, observer: '_onObjectChange'}
+    },
+    _onObjectChange: function(o){
+      if(o){
+
+        if(o.type === 'array'){
+          this._objectType = 'array[' + o.items.type + ']';
+        } else {
+          this._objectType = o.type; 
+
+        }
+      }
+    }
+  });
+</script>
+
+<dom-module is="property-name">
+  <template>
+
+  <style>
+    :host{
+      @apply(--paper-font-common-code);
+    }
+
+    .required{
+      color: red;
+      position: relative;
+      padding: 0;
+      left: -8px;
+    }
+
+    .name, .content{
+      vertical-align: top;
+    }
+
+    .content{
+      padding-left: 15px;
+    }
+    :host table > tr > td{
+      padding: 0;
+      margin: 0;
+      vertical-align: top;
+    }
+    td.top{
+      vertical-align: top;
+    }
+
+  </style>
+    
+    <div>
+      <span class="name">
+        <span>
+          <template is="dom-if" if="{{_show(obj.description)}}">
+            <comment-description>{{obj.description}}
+              <template is="dom-if" if="{{_show(obj.example)}}">
+                <br/>
+                &nbsp; * example: {{obj.example}} 
+              </template>
+            </comment-description>
+          </template>
+          <bold>{{name}}</bold>:<object-type obj="{{obj}}"></object-type>
+        </span>
+        <template is="dom-if" if="{{required}}">
+          <span class="required">*</span>
+        </template>
+      </span>
+      <div class="content"><content></content></div>
+    </div>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'property-name',
+    properties: {
+      obj: {type: Object},
+      name: {type:String},
+      required: {type: Boolean}
+    },
+    _show: function(o){
+      return o !== undefined;
+    }
+  })
+</script>
+
+<dom-module is="json-schema">
+  <style>
+
+    :host{
+      @apply(--paper-font-body1);
+    }
+    :host > table > tr > td{
+      vertical-align: top;
+    }
+  </style>
+
+  <template>
+    <template is="dom-repeat" items="{{_toArray(schema.properties)}}">
+          <property-name
+            name="{{item.name}}"
+            obj="{{item.value}}"
+            required="{{item.required}}">
+              <template is="dom-if" if="{{_is('object', item.value.type)}}">
+                  <json-schema schema="{{item.value}}"></json-schema>
+              </template>
+              <template is="dom-if" if="{{_is('string', item.value.type)}}">
+                <json-schema-string 
+                  schema="{{item.value}}"></json-schema-string>
+              </template>
+              <template is="dom-if" if="{{_is('number', item.value.type)}}">
+                <json-schema-number
+                  schema="{{item.value}}"></json-schema-number>
+              </template>
+              <template is="dom-if" if="{{_is('array', item.value.type)}}">
+                <json-schema-array
+                  schema="{{item.value}}"></json-schema-array>
+              </template>
+            </property-name>
+    </template>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'json-schema',
+    properties: {
+      schema: {
+        type: Object
+      }
+    },
+    _toArray: function(obj) {
+            return Object.keys(obj).map(function(key) {
+              var required = this.schema.required || [];
+                return {
+                    name: key,
+                    value: obj[key],
+                    required: required.indexOf(key) !== -1
+                };
+            }.bind(this));
+        },
+        _is: function(expected, actual){
+          return expected === actual;
+        }
+  });
+</script>
+<dom-module is="json-schema-number">
+  <template>
+    <template is="dom-if" if="{{_show(schema.minimum)}}">
+      <div>minimum: {{schema.minimum}}</div>
+    </template>
+    <template is="dom-if" if="{{_show(schema.example)}}">
+      <div>example: {{schema.example}}</div>
+    </template>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'json-schema-number',
+    properties: {
+      key: {type:String},
+      schema: {type: Object}
+    },
+    _show: function(o){
+      return o !== undefined;
+    }
+  })
+</script>
+<dom-module is="json-schema-array">
+  <style>
+    .array-type{
+      padding: 10px;
+      background-color: var(--paper-grey-50);
+    }
+  </style>
+  <template>
+    <template is="dom-if" if="{{_is('object', schema.items.type)}}">
+        <div class="array-type">
+          <json-schema schema="{{schema.items}}"></json-schema>
+        </div>
+    </template>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'json-schema-array',
+    properties: {
+      key: {type:String},
+      schema: {type: Object}
+    },
+    _is: function(expected, actual){
+      return expected === actual;
+    },
+    _show: function(o){
+      return o !== undefined;
+    }
+  })
+</script>
+
+<dom-module is="schema-example">
+  <style>
+    :host {
+      display: inline-block;
+      @apply(--paper-font-code1);
+      color: var(--paper-purple-500);
+      background-color: var(--paper-grey-100);
+      margin: 0px;
+      padding: 5px;
+    }
+  </style>
+
+  <template>
+    <content></content>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'schema-example',
+    properties: {
+      example: {type: String}
+    }
+  });
+</script>
+<dom-module is="json-schema-string">
+  <template>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'json-schema-string',
+    properties: {
+      key: {type:String},
+      schema: {type: Object}
+    },
+    _show: function(o){
+      return o !== undefined;
+    }
+  })
+</script>

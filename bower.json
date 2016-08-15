@@ -1,0 +1,20 @@
+{
+  "name": "json-schema-elements",
+  "version": "0.0.1",
+  "dependencies": {
+    "polymer": "^1.6.1",
+    "lodash": "^4.15.0",
+    "paper-styles": "PolymerElements/paper-styles#^1.1.4"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "iron-test-helpers": "PolymerElements/iron-test-helpers#^1.0.0",
+    "test-fixture": "PolymerElements/test-fixture#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "resolutions": {
+    "lodash": "^4.15.0"
+  }
+}
