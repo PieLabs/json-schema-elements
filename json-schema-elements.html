@@ -157,11 +157,21 @@
       obj: {type: Object},
       name: {type:String},
       required: {type: Boolean},
-      env: {type: Object},
+      env: {type: Object, notify: true},
       _expand: {
         type: Boolean, 
         value: true, 
         reflectToAttribute: true},
+    },
+    observers: [
+      '_onExpandStateChange(env.expandState)'
+    ],
+    _onExpandStateChange: function(s){
+      if(s === 'all'){
+        this._expand = true;
+      } else if(s === 'none'){
+        this._expand = false;
+      }
     },
     _show: function(o){
       return  o !== undefined;
@@ -172,16 +182,50 @@
         (t === 'array' && this.obj.items.type === 'object');
     },
     _onToggle: function(){
-      this._expand = !this._expand;
-      console.log(this._expand);
+      this.notifyPath('_expand', !this._expand);
     }
   })
 </script>
 
 <link rel="import" href="../paper-checkbox/paper-checkbox.html"/>
+<link rel="import" href="../paper-button/paper-button.html"/>
 <dom-module is="schema-controls">
+  <style>
+    .legend {
+      float: right;
+    }
+    .required{
+      color: red;
+    }
+
+    paper-button, paper-checkbox {
+      font-size: 12px;
+      padding-right: 10px;
+    }
+    paper-checkbox{
+      text-transform: uppercase;
+    }
+    paper-button:hover{
+      opacity: 0.6;
+    }
+    paper-button{
+      height: 18px;
+      vertical-align: middle;
+      padding: 0;
+      margin: 0;
+    }
+  </style>
   <template>
     <paper-checkbox checked="{{env.showComments}}">Show Comments</paper-checkbox>
+    <paper-button noink on-click="_expandAll">
+      <iron-icon icon="icons:expand-more"></iron-icon>
+      Expand all
+    </paper-button>
+    <paper-button noink on-click="_collapseAll">
+      <iron-icon icon="icons:expand-less"></iron-icon>
+      Collapse all
+    </paper-button>
+      <!--<span class="legend"><span class="required">*</span> - required</span>-->
   </template>
 </dom-module>
 <script>
@@ -192,6 +236,12 @@
     },
     _stringify: function(o){
       return JSON.stringify(o);
+    },
+    _expandAll: function(){
+      this.notifyPath('env.expandState', 'all');
+    },
+    _collapseAll: function(){
+      this.notifyPath('env.expandState', 'none');
     }
   });
 </script>
