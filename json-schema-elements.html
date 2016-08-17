@@ -98,27 +98,23 @@
       user-select: none;           /* Non-prefixed version, currently
                                       not supported by any browser */
     }
-    iron-icon[transparent]{
-      opacity: 0;
-    }
-
-    :host[_expand] .content{
-      display: block;
-    }
-    :host .content{
-      display: none;
-    }
 
     :host iron-icon{
       width: 14px;
       height: 14px;
       transform: scale(1.0);
     }
-    :host[_expand] iron-icon{
+     
+     :host iron-icon[transparent]{
+      opacity: 0;
+    }
+    
+    :host iron-icon[expanded]{
       width: 14px;
       height: 14px;
       transform: scale(1.0) rotate(90deg);
     }
+
   </style>
     
     <div>
@@ -138,7 +134,7 @@
           <iron-icon 
             on-click="_onToggle" 
             transparent$="{{!_showExpandIcon(obj.type)}}" 
-            expanded?="{{_expand}}"
+            expanded$="{{_expand}}"
             icon="icons:chevron-right"></iron-icon>
           <bold>{{name}}</bold>:<object-type obj="{{obj}}"></object-type>
         </span>
@@ -146,7 +142,7 @@
           <span class="required">*</span>
         </template>
       </span>
-      <div class="content" hidden?="{{_expand}}"><content></content></div>
+      <div class="content" hidden$="{{!_expand}}"><content></content></div>
     </div>
   </template>
 </dom-module>
@@ -161,7 +157,7 @@
       _expand: {
         type: Boolean, 
         value: true, 
-        reflectToAttribute: true},
+        reflectToAttribute: false},
     },
     observers: [
       '_onExpandStateChange(env.expandState)'
@@ -182,7 +178,7 @@
         (t === 'array' && this.obj.items.type === 'object');
     },
     _onToggle: function(){
-      this._expand = !this._expand;
+      this.notifyPath('_expand', !this._expand);
     }
   })
 </script>
@@ -329,6 +325,7 @@
               </template>
               <template is="dom-if" if="{{_is('array', item.value.type)}}">
                 <json-schema-array
+                  env="{{env}}"
                   schema="{{item.value}}"></json-schema-array>
               </template>
             </property-name>
@@ -397,7 +394,7 @@
   <template>
     <template is="dom-if" if="{{_is('object', schema.items.type)}}">
         <div class="array-type">
-          <json-schema schema="{{schema.items}}"></json-schema>
+          <json-schema env="{{env}}" schema="{{schema.items}}"></json-schema>
         </div>
     </template>
   </template>
@@ -407,7 +404,8 @@
     is: 'json-schema-array',
     properties: {
       key: {type:String},
-      schema: {type: Object}
+      schema: {type: Object},
+      env: {type: Object}
     },
     _is: function(expected, actual){
       return expected === actual;
