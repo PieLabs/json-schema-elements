@@ -182,7 +182,7 @@
         (t === 'array' && this.obj.items.type === 'object');
     },
     _onToggle: function(){
-      this.notifyPath('_expand', !this._expand);
+      this._expand = !this._expand;
     }
   })
 </script>
@@ -191,6 +191,16 @@
 <link rel="import" href="../paper-button/paper-button.html"/>
 <dom-module is="schema-controls">
   <style>
+
+    paper-checkbox {
+      -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none;   /* Chrome/Safari/Opera */
+      -khtml-user-select: none;    /* Konqueror */
+      -moz-user-select: none;      /* Firefox */
+      -ms-user-select: none;       /* Internet Explorer/Edge */
+      user-select: none;           
+    }
+
     .legend {
       float: right;
     }
@@ -255,11 +265,27 @@
       border: solid 0px black;
       border-bottom: solid 1px var(--paper-grey-300);
     }
+
+    .header {
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .header .title{
+      font-size: 24px;
+    }
+
+    .header .id {
+      font-size: 12px;
+      color: var(--paper-grey-500);
+    }
   </style>
   <template>
-    <h1>{{schema.title}}</h1>
-    <h4>{{schema.id}}</h4>
-    <p>{{schema.description}}</p>
+    <div class="header">
+      <span class="title">{{schema.title}}</span>
+      <span class="id">[{{schema.id}}]</span>
+    </div>
+    <div class="description">{{schema.description}}</div>
     <hr/>
     <schema-controls env="{{env}}"></schema-controls>
     <hr/>
