@@ -338,13 +338,13 @@
                 <json-schema-raw-array
                   prefix="one of:"
                   env="{{env}}"
-                  schema="{{item.value.allOf}}"></json-schema-raw-array>
+                  schema="{{item.value.oneOf}}"></json-schema-raw-array>
               </template>
               <template is="dom-if" if="{{item.value.anyOf}}">
                 <json-schema-raw-array
                   prefix="any of:"
                   env="{{env}}"
-                  schema="{{item.value.allOf}}"></json-schema-raw-array>
+                  schema="{{item.value.anyOf}}"></json-schema-raw-array>
               </template>
             </property-name>
     </template>
