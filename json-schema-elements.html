@@ -328,6 +328,24 @@
                   env="{{env}}"
                   schema="{{item.value}}"></json-schema-array>
               </template>
+              <template is="dom-if" if="{{item.value.allOf}}">
+                <json-schema-raw-array
+                  prefix="all of:"
+                  env="{{env}}"
+                  schema="{{item.value.allOf}}"></json-schema-raw-array>
+              </template>
+              <template is="dom-if" if="{{item.value.oneOf}}">
+                <json-schema-raw-array
+                  prefix="one of:"
+                  env="{{env}}"
+                  schema="{{item.value.allOf}}"></json-schema-raw-array>
+              </template>
+              <template is="dom-if" if="{{item.value.anyOf}}">
+                <json-schema-raw-array
+                  prefix="any of:"
+                  env="{{env}}"
+                  schema="{{item.value.allOf}}"></json-schema-raw-array>
+              </template>
             </property-name>
     </template>
   </template>
@@ -355,8 +373,8 @@
       }.bind(this));
      },
      _is: function(expected, actual){
-        return expected === actual;
-      }
+       return expected === actual;
+     }
   });
 </script>
 <dom-module is="json-schema-number">
@@ -449,10 +467,84 @@
     is: 'json-schema-string',
     properties: {
       key: {type:String},
-      schema: {type: Object}
+      schema: {type: Array}
     },
     _show: function(o){
       return o !== undefined;
     }
   })
 </script>
+<dom-module is="json-schema-raw-array">
+  <style>
+    :host .array {
+      margin-left: var(--json-padding, 15px);
+    }
+  </style>
+  <template>
+    <div class="array">
+      <span>{{prefix}} [</span>
+      <template is="dom-repeat" items="{{schema}}" indexAs="index">
+        <json-schema-object schema="{{item}}" last="{{_isLast(index)}}"></json-schema-object>
+      </template>
+      <span>]</span>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'json-schema-raw-array',
+      properties: {
+        prefix: {type: String},
+        env: {type: Object},
+        schema: {type: Array}
+      },
+      _isLast: function(index) {
+        return index == this.schema.length - 1;
+      }
+    })
+  </script>
+</dom-module>
+<dom-module is="json-schema-object">
+  <style>
+    :host .item {
+      margin-left: var(--json-padding, 15px);
+    }
+    :host .item-property {
+      margin-left: var(--json-padding, 15px);
+    }
+    :host .item-value {
+      color: var(--json-value, green);
+    }
+  </style>
+  <template>
+    <div class="item">{
+      <template is="dom-repeat" items="{{_toArray(schema)}}" indexAs="index">
+        <div class="item-property">
+          <span class="item-key">{{item.name}}</span>: <span class="item-value">{{item.value}}<template is="dom-if" if="{{!_isLast(index)}}">,</template></span>
+        </div>
+      </template>
+    }<template is="dom-if" if="{{!last}}">,</template></div>
+  </template>
+  <script>
+    Polymer({
+      is: 'json-schema-object',
+      properties: {
+        schema: {type: Object},
+        last: {type: Boolean}
+      },
+      _isLast: function(index) {
+        return index == this._toArray(this.schema).length - 1;
+      },
+      _toArray: function(obj) {
+        obj = obj || {};
+        return Object.keys(obj).map(function(key) {
+          var required = this.schema.required || [];
+          return {
+            name: key,
+            value: obj[key],
+            required: required.indexOf(key) !== -1
+          };
+        }.bind(this));
+       },
+    })
+  </script>
+</dom-module>

@@ -42,7 +42,10 @@
                 description: 'the complex type',
                 properties: {
                   apple: {
-                    type: 'string'
+                    allOf: [
+                      {'type': 'string'},
+                      {'maxLength': 5, 'minLength' : 0}
+                    ]
                   }
                 }
               }
@@ -51,6 +54,7 @@
               description: 'the price of the thing',
               "type": "number",
               "minimum": 0,
+              "maximum": 5,
               "exclusiveMinimum": true
             },
             "dimensions": {
