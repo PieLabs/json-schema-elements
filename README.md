@@ -16,6 +16,8 @@ bower install
 polyserve
 ```
 
+Demo is located at http://localhost:8080/components/json-schema-elements/demo/index.html
+
 ## Usage
 
 ```html
