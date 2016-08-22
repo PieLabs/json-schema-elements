@@ -127,6 +127,10 @@
                   <br/>
                   &nbsp; * example: {{obj.example}} 
                 </template>
+                <template is="dom-if" if="{{_range(obj)}}">
+                  <br/>
+                  &nbsp; * {{_range(obj)}}
+                </template>
               </comment-description>
             </template>
           </div>
@@ -171,6 +175,17 @@
     },
     _show: function(o){
       return  o !== undefined;
+    },
+    _range: function(o) {
+      if (this.obj.minimum !== undefined && this.obj.maximum !== undefined) {
+        var rangeLeft = (this.obj.exclusiveMinimum === true) ? '(' : '[';
+        var rangeRight = (this.obj.exclusiveMaximum === true) ? ')' : ']';
+        return 'range: ' + rangeLeft + this.obj.minimum + ', ' + this.obj.maximum + rangeRight;
+      } else if (this.obj.minimum !== undefined) {
+        return 'minimum: ' + this.obj.minimum;
+      } else if (this.obj.maximum !== undefined) {
+        return 'maximum: ' + this.obj.maximum;
+      }
     },
     _showExpandIcon: function(t){
       return t === 'object' || 
@@ -360,17 +375,6 @@
   });
 </script>
 <dom-module is="json-schema-number">
-  <style>
-    .min {
-      padding: 0px;
-      padding-left: 15px;
-    }
-  </style>
-  <template>
-    <template is="dom-if" if="{{_show(schema.minimum)}}">
-      <span class="min">minimum: {{schema.minimum}}</span>
-    </template>
-  </template>
 </dom-module>
 <script>
   Polymer({
